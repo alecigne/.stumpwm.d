@@ -1,0 +1,4 @@
+#+TITLE: alecigne's StumpWM config
+#+AUTHOR: Anthony Le Cigne
+
+My [[http://stumpwm.github.io/][StumpWM]] config.
