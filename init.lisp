@@ -168,10 +168,10 @@
           "screenshot -s ~/tmp/screenshots/"
           "screenshot ~/tmp/screenshots/")))
 
-(defcommand screenshot () ()
+(defco screenshot () ()
   (do-screenshot))
 
-(defcommand screenshot-area () ()
+(defco screenshot-area () ()
   (do-screenshot t))
 
 ;; * Keyboard
