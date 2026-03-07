@@ -138,6 +138,19 @@
 (defun nord-disconnect ()
   (sh "nordvpn disconnect"))
 
+;; ** screenshot
+
+(defun do-screenshot (&optional area-p)
+  (sh (if area-p
+          "screenshot -s ~/tmp/screenshots/"
+          "screenshot ~/tmp/screenshots/")))
+
+(defcommand screenshot () ()
+  (do-screenshot))
+
+(defcommand screenshot-area () ()
+  (do-screenshot t))
+
 ;; * Keyboard
 ;; Low-level customization of the keyboard, and keybindings for applications.
 
@@ -157,7 +170,9 @@
   ("s-j" "next")
   ("s-k" "prev")
   ("s-RET" "rofi")
-  ("s-SPC" "alacritty"))
+  ("s-SPC" "alacritty")
+  ("Print" "screenshot")
+  ("Sys_Req" "screenshot-area"))
 
 (defkeys *root-map*
   ("l" "lock-screen")
