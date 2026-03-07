@@ -7,7 +7,7 @@
 ;; ** Dependencies
 
 ;; An ASDF system might be cool in the future, overkill for now.
-(ql:quickload '(:alexandria :slynk) :silent t)
+(ql:quickload '(:alexandria :slynk :local-time) :silent t)
 
 ;; ** Helpers
 
@@ -27,6 +27,25 @@
                collect `(define-key ,m (kbd ,key) ,command)))))
 
 (defmacro defco (&rest args) `(defcommand ,@args))
+
+(defun modeline-time ()
+  (let ((now (local-time:now)))
+    (format nil "~a w~a d~d ~a"
+            (local-time:format-timestring
+             nil now
+             :format '((:year 4) #\- (:month 2) #\- (:day 2)))
+            (local-time:format-timestring
+             nil now
+             :format '((:iso-week-number 2)))
+            (local-time:timestamp-day-of-week now)
+            (local-time:format-timestring
+             nil now
+             :format '((:hour 2) #\: (:min 2))))))
+
+(setf *mode-line-timeout* 60)
+
+(setf *screen-mode-line-format*
+      '("[^B%n^b] %W^> " (:eval (modeline-time))))
 
 ;; ** Slynk
 
@@ -66,6 +85,10 @@
 (setf *grab-pointer-character* 24)
 (setf *grab-pointer-character-mask* 24)
 (sh "xsetroot -cursor_name left_ptr")
+
+(setf *screen-mode-line-format*
+      '("[^B%n^b] %W^>"
+        (:eval (stumpwm:run-shell-command "date \"+%F w%V d%w %H:%M\"" t))))
 
 ;; * Appearance
 
@@ -171,6 +194,7 @@
   ("s-k" "prev")
   ("s-RET" "rofi")
   ("s-SPC" "alacritty")
+  ("s-TAB" "pull-hidden-other")
   ("Print" "screenshot")
   ("Sys_Req" "screenshot-area"))
 
