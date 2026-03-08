@@ -96,6 +96,25 @@
                          :size 12
                          :antialias t))
 
+;; * Windows and groups
+
+(defun move-window (delta)
+  (let* ((win (current-window))
+         (n (window-number win))
+         (target (+ n delta)))
+    (cond
+      ((< target 0) nil)
+      ((minusp delta) (renumber target) target)
+      (t
+       (let* ((windows (group-windows (current-group)))
+              (max-n (reduce #'max windows :key #'window-number)))
+         (when (<= target max-n)
+           (renumber target)
+           target))))))
+
+(defco move-window-left () () (move-window -1))
+(defco move-window-right () () (move-window 1))
+
 ;; * Applications
 
 ;; ** Usual suspects
@@ -230,7 +249,9 @@
   ("s-SPC" "alacritty")
   ("s-TAB" "pull-hidden-other")
   ("Print" "screenshot")
-  ("Sys_Req" "screenshot-area"))
+  ("Sys_Req" "screenshot-area")
+  ("s-J" "move-window-right")
+  ("s-K" "move-window-left"))
 
 (defkeys *root-map*
   ("l" "lock-screen")
