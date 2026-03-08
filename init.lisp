@@ -120,8 +120,7 @@
 ;; ** Usual suspects
 
 (defco firefox () ()
-  (run-or-raise "firefox-esr" '(:class "Firefox"))
-  (message "Opening Firefox..."))
+  (run-or-raise "firefox-esr" '(:class "firefox-esr")))
 
 (defco rofi () () (sh "rofi -show combi"))
 (defco alacritty () () (sh "alacritty"))
