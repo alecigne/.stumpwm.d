@@ -141,8 +141,46 @@
 (defco redshift-cooler (&optional (step *redshift-step*)) ()
   (redshift-shift step))
 
-(defco redshift-night () ()
-  (redshift-set *redshift-min*))
+;; ** brightnessctl
+
+(defvar *brightness-current* nil)
+
+(defco brightness-set (value) ((:number "Value: "))
+  (let ((v (alexandria:clamp (round value) 0 100)))
+    (setf *brightness-current* v)
+    (sh (format nil "brightnessctl set ~D%" v))
+    (message "Brightness is now at ~D%." v)
+    v))
+
+(defun brightness-shift (delta)
+  (brightness-set (+ (or *brightness-current* 100) delta)))
+
+(defco brightness-reset () () (brightness-set 100))
+
+(defco brightness-decrease (&optional (step 5)) ()
+  (brightness-shift (- step)))
+
+(defco brightness-increase (&optional (step 5)) ()
+  (brightness-shift step))
+
+(defvar *night-mode-p* nil)
+
+(defun night-mode-disable ()
+  (redshift-reset)
+  (brightness-reset)
+  (setf *night-mode-p* nil)
+  (message "Night mode disabled."))
+
+(defun night-mode-enable ()
+  (redshift-set *redshift-min*)
+  (brightness-set 90)
+  (setf *night-mode-p* t)
+  (message "Night mode enabled."))
+
+(defco night-mode-toggle () ()
+  (if *night-mode-p*
+      (night-mode-disable)
+      (night-mode-enable)))
 
 ;; ** NordVPN
 
