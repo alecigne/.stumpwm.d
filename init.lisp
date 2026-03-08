@@ -28,25 +28,6 @@
 
 (defmacro defco (&rest args) `(defcommand ,@args))
 
-(defun modeline-time ()
-  (let ((now (local-time:now)))
-    (format nil "~a w~a d~d ~a"
-            (local-time:format-timestring
-             nil now
-             :format '((:year 4) #\- (:month 2) #\- (:day 2)))
-            (local-time:format-timestring
-             nil now
-             :format '((:iso-week-number 2)))
-            (local-time:timestamp-day-of-week now)
-            (local-time:format-timestring
-             nil now
-             :format '((:hour 2) #\: (:min 2))))))
-
-(setf *mode-line-timeout* 60)
-
-(setf *screen-mode-line-format*
-      '("[^B%n^b] %W^> " (:eval (modeline-time))))
-
 ;; ** Slynk
 
 (defvar *slynk-server* nil)
@@ -86,9 +67,24 @@
 (setf *grab-pointer-character-mask* 24)
 (sh "xsetroot -cursor_name left_ptr")
 
+(defun modeline-time ()
+  (let ((now (local-time:now)))
+    (format nil "~a w~a d~d ~a"
+            (local-time:format-timestring
+             nil now
+             :format '((:year 4) #\- (:month 2) #\- (:day 2)))
+            (local-time:format-timestring
+             nil now
+             :format '((:iso-week-number 2)))
+            (local-time:timestamp-day-of-week now)
+            (local-time:format-timestring
+             nil now
+             :format '((:hour 2) #\: (:min 2))))))
+
+(setf *mode-line-timeout* 60)
+
 (setf *screen-mode-line-format*
-      '("[^B%n^b] %W^>"
-        (:eval (stumpwm:run-shell-command "date \"+%F w%V d%w %H:%M\"" t))))
+      '("[^B%n^b] %W^> " (:eval (modeline-time))))
 
 ;; * Appearance
 
