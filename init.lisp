@@ -28,6 +28,12 @@
 
 (defmacro defco (&rest args) `(defcommand ,@args))
 
+(defun select-object-from-menu (screen prompt xs &key display-fn)
+  "Display XS in a menu using DISPLAY-FN and return the selected object."
+  (let* ((table (mapcar (lambda (x) (list (funcall display-fn x) x)) xs))
+         (choice (select-from-menu screen table prompt)))
+    (when choice (second choice))))
+
 ;; ** Slynk
 
 (defvar *slynk-server* nil)
@@ -268,6 +274,50 @@
 (defkeys *root-map*
   ("l" "lock-screen")
   ("m" "mode-line"))
+
+;; * Bluetooth
+
+;; TODO Work in progress. This works when Bluetooth is already on; later I'll
+;; ensure it is on.
+
+(defun bluetooth-make-device (device-string)
+  "Make a Bluetooth device from a DEVICE-STRING.
+DEVICE-STRINGs look like this: Device 11:22:33:44:55:66 NAME.
+A Bluetooth device is a plist: (:mac MAC :name NAME)."
+  (let ((components (uiop:split-string device-string :separator '(#\Space))))
+    (list :mac  (second components)
+          :name (format nil "~{~A~^ ~}" (cddr components)))))
+
+(defun bluetooth-devices ()
+  "Return a list of Bluetooth devices."
+  (let ((device-strings
+          (uiop:run-program '("bluetoothctl" "devices") :output :lines)))
+    (mapcar #'bluetooth-make-device device-strings)))
+
+(defun bluetooth-select-device ()
+  "Return a Bluetooth device chosen from a selection menu."
+  (flet ((device->str (d) (format nil "~A (~A)" (getf d :name) (getf d :mac))))
+    (select-object-from-menu
+     (current-screen) "Bluetooth devices:" (bluetooth-devices)
+     :display-fn #'device->str)))
+
+(defun bluetooth-device-connected-p (device)
+  "Check if DEVICE is connected or not."
+  (let ((info (uiop:run-program
+               (list "bluetoothctl" "info" (getf device :mac))
+               :output :string)))
+    (not (null (search "Connected: yes" info)))))
+
+(defun bluetooth-toggle-device* (device)
+  "Toggle connection of Bluetooth DEVICE."
+  (let ((command (if (bluetooth-device-connected-p device)
+                     "disconnect"
+                     "connect")))
+    (sh/out (format nil "bluetoothctl ~A ~A" command (getf device :mac)))))
+
+(defcommand bluetooth-toggle-device () ()
+  (let ((device (bluetooth-select-device)))
+    (when device (bluetooth-toggle-device* device))))
 
 ;; * Experimental
 
