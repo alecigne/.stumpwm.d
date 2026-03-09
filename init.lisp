@@ -245,6 +245,13 @@
 (pushnew 'load-xmodmap *start-hook*)
 (pushnew 'load-xmodmap *restart-hook*)
 
+(defun display-keyseq (key seq cmd)
+  (declare (ignore key))
+  (unless (or (eq *top-map* *resize-map*) (stringp cmd))
+    (message "~A" (print-key-seq (reverse seq)))))
+
+(add-hook *key-press-hook* 'display-keyseq)
+
 (set-prefix-key (kbd "s-c"))
 
 (defkeys *top-map*
