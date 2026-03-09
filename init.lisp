@@ -269,6 +269,27 @@
   ("l" "lock-screen")
   ("m" "mode-line"))
 
+;; * Experimental
+
+(defvar *auto-clicker-process* nil)
+
+(defcommand toggle-auto-clicker () ()
+  (if *auto-clicker-process*
+      (progn
+        (sb-ext:process-kill *auto-clicker-process* 15)
+        (setf *auto-clicker-process* nil)
+        (message "Auto-clicker OFF"))
+      (progn
+        (setf *auto-clicker-process*
+              (sb-ext:run-program
+               "/bin/sh"
+               '("-c" "while :; do xdotool click 1; sleep 0.005; done")
+               :search t
+               :wait nil))
+        (message "Auto-clicker ON"))))
+
+(define-key *root-map* (kbd "x") "toggle-auto-clicker")
+
 ;; * Emacs config
 
 ;;; Local Variables:
