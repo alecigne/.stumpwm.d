@@ -67,6 +67,10 @@
 (setf *grab-pointer-character-mask* 24)
 (sh "xsetroot -cursor_name left_ptr")
 
+;; ** Modeline
+
+(load-module "battery-portable")
+
 (defun modeline-time ()
   (let ((now (local-time:now)))
     (format nil "~a w~a d~d ~a"
@@ -84,7 +88,9 @@
 (setf *mode-line-timeout* 60)
 
 (setf *screen-mode-line-format*
-      '("[^B%n^b] %W^> " (:eval (modeline-time))))
+      '("[^B%n^b] %W^> "
+        "bat: %B | "
+        (:eval (modeline-time))))
 
 ;; * Appearance
 
