@@ -100,6 +100,8 @@
         "bat: %B | "
         (:eval (modeline-time))))
 
+(mode-line)
+
 ;; * Appearance
 
 (load-module "ttf-fonts")
