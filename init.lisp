@@ -64,7 +64,9 @@
 (setf *startup-message* "^5Lisp ^2^bsystem operational. Welcome!")
 (setf *suppress-frame-indicator* t)
 (setf *window-name-source* :class)
-(setf *message-window-gravity* :bottom-right)
+(setf *message-window-gravity* :bottom-right
+      *message-window-margin* 18
+      *message-window-y-margin* 12)
 (setf *input-window-gravity* :bottom-right)
 (setf *mode-line-position* :bottom)
 (setf *grab-pointer-foreground* (xlib:make-color :red 1 :green 0 :blue 0))
