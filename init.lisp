@@ -273,7 +273,17 @@
   ("Print" "screenshot")
   ("Sys_Req" "screenshot-area")
   ("s-J" "move-window-right")
-  ("s-K" "move-window-left"))
+  ("s-K" "move-window-left")
+  ("s-ampersand" "pull 1")
+  ("s-eacute" "pull 2")
+  ("s-quotedbl" "pull 3")
+  ("s-apostrophe" "pull 4")
+  ("s-parenleft" "pull 5")
+  ("s-minus" "pull 6")
+  ("s-egrave" "pull 7")
+  ("s-underscore" "pull 8")
+  ("s-ccedilla" "pull 9")
+  ("s-agrave" "pull 0"))
 
 (defkeys *root-map*
   ("l" "lock-screen")
