@@ -73,6 +73,11 @@
 (setf *grab-pointer-background* (lookup-color (current-screen) "DeepSkyBlue"))
 (setf *grab-pointer-character* 24)
 (setf *grab-pointer-character-mask* 24)
+
+;; This solves white borders around Emacs. `frame-resize-pixelwise' can also be
+;; set to T in Emacs to work well with this option.
+(setf *ignore-wm-inc-hints* t)
+
 (sh "xsetroot -cursor_name left_ptr")
 
 ;; ** Modeline
