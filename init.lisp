@@ -265,6 +265,8 @@
 (set-prefix-key (kbd "s-c"))
 
 (defkeys *top-map*
+  ;; s-x resembles M-x in Emacs
+  ("s-x" "colon")
   ("s-j" "next")
   ("s-k" "prev")
   ("s-RET" "rofi")
