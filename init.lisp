@@ -7,7 +7,11 @@
 ;; ** Dependencies
 
 ;; An ASDF system might be cool in the future, overkill for now.
-(ql:quickload '(:alexandria :slynk :local-time) :silent t)
+(ql:quickload '(:alexandria
+                :slynk
+                :local-time
+                :cl-ppcre)
+              :silent t)
 
 ;; ** Helpers
 
@@ -246,6 +250,55 @@
 
 (defco screenshot-area () ()
   (do-screenshot t))
+
+;; * Sound
+
+(defparameter *volume-step* 0.05)
+(defparameter *volume-max* 1.0)
+(defparameter *volume-state-scanner*
+  (cl-ppcre:create-scanner "^Volume:\\s+(\\S+)(?:\\s+(\\[MUTED\\]))?\\s*$"))
+
+(defun parse-real (s)
+  (let ((*read-eval* nil))
+    (read-from-string s)))
+
+(defun parse-volume-state (s)
+  (multiple-value-bind (match registers)
+      (cl-ppcre:scan-to-strings *volume-state-scanner* s)
+    (unless match (error "Cannot parse volume state: ~S" s))
+    (values (parse-real (aref registers 0))
+            (not (null (aref registers 1))))))
+
+(defun exec-wpctl-and-get-vol (cmd)
+  (let* ((get-cmd "wpctl get-volume @DEFAULT_SINK@")
+         (final-cmd (concat cmd " && " get-cmd)))
+    (parse-volume-state (sh/out final-cmd))))
+
+(defun audio-volume (delta)
+  (exec-wpctl-and-get-vol
+   (format nil
+           "wpctl set-volume -l ~,2f @DEFAULT_SINK@ ~D~A"
+           *volume-max* (abs delta) (if (minusp delta) "-" "+"))))
+
+(defun audio-toggle-mute* ()
+  (exec-wpctl-and-get-vol "wpctl set-mute @DEFAULT_SINK@ toggle"))
+
+(defun audio-volume-message (volume)
+  (message "Volume ~D%" (round (* 100 volume))))
+
+(defco audio-volume-up () ()
+  (audio-volume-message (audio-volume *volume-step*)))
+
+(defco audio-volume-down () ()
+  (audio-volume-message (audio-volume (- *volume-step*))))
+
+(defco audio-toggle-mute () ()
+  (multiple-value-bind (volume muted-p) (audio-toggle-mute*)
+    (if muted-p (message "Muted") (audio-volume-message volume))))
+
+(define-key *top-map* (kbd "XF86AudioRaiseVolume") "audio-volume-up")
+(define-key *top-map* (kbd "XF86AudioLowerVolume") "audio-volume-down")
+(define-key *top-map* (kbd "XF86AudioMute") "audio-toggle-mute")
 
 ;; * Keyboard
 ;; Low-level customization of the keyboard, and keybindings for applications.
