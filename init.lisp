@@ -192,7 +192,7 @@
   (let ((v (alexandria:clamp (round value) 0 100)))
     (setf *brightness-current* v)
     (sh (format nil "brightnessctl set ~D%" v))
-    (message "Brightness is now at ~D%." v)
+    (message "Brightness is now at ^2^b~D%" v)
     v))
 
 (defun brightness-shift (delta)
@@ -205,6 +205,10 @@
 
 (defco brightness-increase (&optional (step 5)) ()
   (brightness-shift step))
+
+(defkeys *top-map*
+  ("XF86MonBrightnessDown" "brightness-decrease")
+  ("XF86MonBrightnessUp"   "brightness-increase"))
 
 (defvar *night-mode-p* nil)
 
