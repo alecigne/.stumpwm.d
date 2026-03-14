@@ -2,3 +2,12 @@
 #+AUTHOR: Anthony Le Cigne
 
 My [[http://stumpwm.github.io/][StumpWM]] config.
+
+* Other configs
+:PROPERTIES:
+:CREATED:  [2026-03-15 Sun 00:52]
+:END:
+
+- https://codeberg.org/Izder456/StumpWM-Config
+- https://github.com/solbloch/stumpwm-configs
+- etc.
