@@ -20,6 +20,7 @@
    '(#\Space #\Newline #\Backspace #\Tab #\Linefeed #\Page #\Return #\Rubout)
    string))
 
+;; TODO Hackish. Maybe use dedicated tools
 (defun sh (control-str &rest args)
   "Run CONTROL-STR through FORMAT and execute it via StumpWM.
 If the final arguments are :OUTPUT t, run synchronously and return sanitized
@@ -28,7 +29,9 @@ stdout; otherwise launch asynchronously."
                             (eq (nth (- (length args) 2) args) :output)))
          (output-p (and output-arg-p (nth (- (length args) 1) args)))
          (fmt-args (if output-arg-p (butlast args 2) args))
-         (cmd (apply #'format nil control-str fmt-args)))
+         (cmd (if fmt-args
+                  (apply #'format nil control-str fmt-args)
+                  control-str)))
     (if output-p
         (sanitize-string (run-shell-command cmd t))
         (run-shell-command cmd))))
