@@ -332,55 +332,6 @@ stdout; otherwise launch asynchronously."
 (define-key *top-map* (kbd "XF86AudioLowerVolume") "audio-volume-down")
 (define-key *top-map* (kbd "XF86AudioMute") "audio-toggle-mute")
 
-;; * Keyboard
-;; Low-level customization of the keyboard, and keybindings for applications.
-
-(defun load-xmodmap ()
-  (let ((xmodmap-file (merge-pathnames ".Xmodmap" (user-homedir-pathname))))
-    (when (probe-file xmodmap-file)
-      (sh
-       "setxkbmap -layout fr -variant latin9 && xmodmap ~A"
-       (namestring xmodmap-file)))))
-
-(pushnew 'load-xmodmap *start-hook*)
-(pushnew 'load-xmodmap *restart-hook*)
-
-(defun display-keyseq (key seq cmd)
-  (declare (ignore key))
-  (unless (or (eq *top-map* *resize-map*) (stringp cmd))
-    (message "~A" (print-key-seq (reverse seq)))))
-
-(add-hook *key-press-hook* 'display-keyseq)
-
-(set-prefix-key (kbd "s-c"))
-
-(defkeys *top-map*
-  ;; s-x resembles M-x in Emacs
-  ("s-x" "colon")
-  ("s-j" "next")
-  ("s-k" "prev")
-  ("s-RET" "rofi")
-  ("s-SPC" "alacritty")
-  ("s-TAB" "pull-hidden-other")
-  ("Print" "screenshot")
-  ("Sys_Req" "screenshot-area")
-  ("s-J" "move-window-right")
-  ("s-K" "move-window-left")
-  ("s-ampersand" "pull 1")
-  ("s-eacute" "pull 2")
-  ("s-quotedbl" "pull 3")
-  ("s-apostrophe" "pull 4")
-  ("s-parenleft" "pull 5")
-  ("s-minus" "pull 6")
-  ("s-egrave" "pull 7")
-  ("s-underscore" "pull 8")
-  ("s-ccedilla" "pull 9")
-  ("s-agrave" "pull 0"))
-
-(defkeys *root-map*
-  ("l" "lock-screen")
-  ("m" "mode-line"))
-
 ;; * Bluetooth
 
 ;; TODO Work in progress. This works when Bluetooth is already on; later I'll
@@ -445,6 +396,55 @@ A Bluetooth device is a plist: (:mac MAC :name NAME)."
         (message "Auto-clicker ~A" (color-up "ON")))))
 
 (define-key *root-map* (kbd "x") "toggle-auto-clicker")
+
+;; * Keyboard
+;; Low-level customization of the keyboard, and keybindings for applications.
+
+(defun load-xmodmap ()
+  (let ((xmodmap-file (merge-pathnames ".Xmodmap" (user-homedir-pathname))))
+    (when (probe-file xmodmap-file)
+      (sh
+       "setxkbmap -layout fr -variant latin9 && xmodmap ~A"
+       (namestring xmodmap-file)))))
+
+(pushnew 'load-xmodmap *start-hook*)
+(pushnew 'load-xmodmap *restart-hook*)
+
+(defun display-keyseq (key seq cmd)
+  (declare (ignore key))
+  (unless (or (eq *top-map* *resize-map*) (stringp cmd))
+    (message "~A" (print-key-seq (reverse seq)))))
+
+(add-hook *key-press-hook* 'display-keyseq)
+
+(set-prefix-key (kbd "s-c"))
+
+(defkeys *top-map*
+  ;; s-x resembles M-x in Emacs
+  ("s-x" "colon")
+  ("s-j" "next")
+  ("s-k" "prev")
+  ("s-RET" "rofi")
+  ("s-SPC" "alacritty")
+  ("s-TAB" "pull-hidden-other")
+  ("Print" "screenshot")
+  ("Sys_Req" "screenshot-area")
+  ("s-J" "move-window-right")
+  ("s-K" "move-window-left")
+  ("s-ampersand" "pull 1")
+  ("s-eacute" "pull 2")
+  ("s-quotedbl" "pull 3")
+  ("s-apostrophe" "pull 4")
+  ("s-parenleft" "pull 5")
+  ("s-minus" "pull 6")
+  ("s-egrave" "pull 7")
+  ("s-underscore" "pull 8")
+  ("s-ccedilla" "pull 9")
+  ("s-agrave" "pull 0"))
+
+(defkeys *root-map*
+  ("l" "lock-screen")
+  ("m" "mode-line"))
 
 ;; * Emacs config
 
