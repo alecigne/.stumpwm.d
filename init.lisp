@@ -132,7 +132,9 @@ stdout; otherwise launch asynchronously."
 
 (setf *screen-mode-line-format*
       '("[^B%n^b] %W^> "
-        "bat: %B | "
+        " | "
+        "bat: %B"
+        " | "
         (:eval (modeline-time))))
 
 (mode-line)
