@@ -15,14 +15,28 @@
 
 ;; ** Helpers
 
-(defun sh (cmd) (run-shell-command cmd))
-
 (defun sanitize-string (string)
   (string-trim
    '(#\Space #\Newline #\Backspace #\Tab #\Linefeed #\Page #\Return #\Rubout)
    string))
 
-(defun sh/out (cmd) (sanitize-string (run-shell-command cmd t)))
+(defun sh (control-str &rest args)
+  "Run CONTROL-STR through FORMAT and execute it via StumpWM.
+If the final arguments are :OUTPUT t, run synchronously and return sanitized
+stdout; otherwise launch asynchronously."
+  (let* ((output-arg-p (and (>= (length args) 2)
+                            (eq (nth (- (length args) 2) args) :output)))
+         (output-p (and output-arg-p (nth (- (length args) 1) args)))
+         (fmt-args (if output-arg-p (butlast args 2) args))
+         (cmd (apply #'format nil control-str fmt-args)))
+    (if output-p
+        (sanitize-string (run-shell-command cmd t))
+        (run-shell-command cmd))))
+
+(defmacro aif (test then &optional else)
+  "Anaphoric if."
+  `(let ((it ,test))
+     (if it ,then ,else)))
 
 (defmacro defkeys (map &body bindings)
   (alexandria:with-gensyms (m)
@@ -180,7 +194,7 @@
 (defco redshift-set (kelvin) ((:number "Kelvin: "))
   (let ((k (alexandria:clamp (round kelvin) *redshift-min* *redshift-max*)))
     (setf *redshift-current* k)
-    (sh (format nil "redshift -PO ~D" k))
+    (sh "redshift -PO ~D" k)
     (redshift-message k)
     k))
 
@@ -203,7 +217,7 @@
 (defco brightness-set (value) ((:number "Value: "))
   (let ((v (alexandria:clamp (round value) 0 100)))
     (setf *brightness-current* v)
-    (sh (format nil "brightnessctl set ~D%" v))
+    (sh "brightnessctl set ~D%" v)
     (message "Brightness is now ~A" (color-up "~D%" v))
     v))
 
@@ -244,15 +258,13 @@
 ;; ** NordVPN
 
 (defun nord-status ()
-  (sh/out "nordvpn status"))
+  (sh "nordvpn status" :output t))
 
 (defco nord-connect (&optional target) ((:string "Target: "))
-  (if target
-      (sh/out (format nil "nordvpn connect ~A" target))
-      (sh/out "nordvpn connect france")))
+  (sh "nordvpn connect ~A" (aif target it "france") :output t))
 
 (defun nord-disconnect ()
-  (sh "nordvpn disconnect"))
+  (sh "nordvpn disconnect" :output t))
 
 ;; ** screenshot
 
@@ -288,7 +300,7 @@
 (defun exec-wpctl-and-get-vol (cmd)
   (let* ((get-cmd "wpctl get-volume @DEFAULT_SINK@")
          (final-cmd (concat cmd " && " get-cmd)))
-    (parse-volume-state (sh/out final-cmd))))
+    (parse-volume-state (sh final-cmd :output t))))
 
 (defun audio-volume (delta)
   (exec-wpctl-and-get-vol
@@ -325,8 +337,8 @@
   (let ((xmodmap-file (merge-pathnames ".Xmodmap" (user-homedir-pathname))))
     (when (probe-file xmodmap-file)
       (sh
-       (format nil "setxkbmap -layout fr -variant latin9 && xmodmap ~A"
-               (namestring xmodmap-file))))))
+       "setxkbmap -layout fr -variant latin9 && xmodmap ~A"
+       (namestring xmodmap-file)))))
 
 (pushnew 'load-xmodmap *start-hook*)
 (pushnew 'load-xmodmap *restart-hook*)
@@ -405,7 +417,7 @@ A Bluetooth device is a plist: (:mac MAC :name NAME)."
   (let ((command (if (bluetooth-device-connected-p device)
                      "disconnect"
                      "connect")))
-    (sh/out (format nil "bluetoothctl ~A ~A" command (getf device :mac)))))
+    (sh "bluetoothctl ~A ~A" command (getf device :mac) :output t)))
 
 (defcommand bluetooth-toggle-device () ()
   (let ((device (bluetooth-select-device)))
