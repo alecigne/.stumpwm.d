@@ -38,6 +38,18 @@
          (choice (select-from-menu screen table prompt)))
     (when choice (second choice))))
 
+(defun colorize (style control &rest args)
+  (format nil "^[~a~a^]" style (apply #'format nil control args)))
+
+(defun color-up (control &rest args)
+  (apply #'colorize "^2^B" control args))
+
+(defun color-down (control &rest args)
+  (apply #'colorize "^1^B" control args))
+
+(defun color-warn (control &rest args)
+  (apply #'colorize "^3^B" control args))
+
 ;; ** Slynk
 
 (defvar *slynk-server* nil)
@@ -45,13 +57,13 @@
 (defco slynk-start () ()
   (unless *slynk-server*
     (setf *slynk-server* (slynk:create-server :port 4006 :dont-close t)))
-  (message "Slynk server started."))
+  (message "Slynk server ~A" (color-up "started")))
 
 (defco slynk-stop () ()
   (when *slynk-server*
     (slynk:stop-server *slynk-server*)
     (setf *slynk-server* nil)
-    (message "Slynk server stopped.")))
+    (message "Slynk server ~A" (color-down "stopped"))))
 
 (defun stop-slynk-on-exit () (ignore-errors (slynk-stop)))
 
@@ -163,7 +175,7 @@
 (defvar *redshift-current* nil)
 
 (defun redshift-message (kelvin)
-  (message "Color temperature is now ~DK." kelvin))
+  (message "Color temperature is now ~A" (color-up "~DK" kelvin)))
 
 (defco redshift-set (kelvin) ((:number "Kelvin: "))
   (let ((k (alexandria:clamp (round kelvin) *redshift-min* *redshift-max*)))
@@ -192,7 +204,7 @@
   (let ((v (alexandria:clamp (round value) 0 100)))
     (setf *brightness-current* v)
     (sh (format nil "brightnessctl set ~D%" v))
-    (message "Brightness is now at ^2^b~D%" v)
+    (message "Brightness is now ~A" (color-up "~D%" v))
     v))
 
 (defun brightness-shift (delta)
@@ -216,13 +228,13 @@
   (redshift-reset)
   (brightness-reset)
   (setf *night-mode-p* nil)
-  (message "Night mode disabled."))
+  (message "Night mode ~A" (color-down "disabled")))
 
 (defun night-mode-enable ()
   (redshift-set *redshift-min*)
   (brightness-set 90)
   (setf *night-mode-p* t)
-  (message "Night mode enabled."))
+  (message "Night mode ~A" (color-up "enabled")))
 
 (defco night-mode-toggle () ()
   (if *night-mode-p*
@@ -288,7 +300,7 @@
   (exec-wpctl-and-get-vol "wpctl set-mute @DEFAULT_SINK@ toggle"))
 
 (defun audio-volume-message (volume)
-  (message "Volume ~D%" (round (* 100 volume))))
+  (message "Volume is now at ~A" (color-up "~D%" (round (* 100 volume)))))
 
 (defco audio-volume-up () ()
   (audio-volume-message (audio-volume *volume-step*)))
@@ -298,7 +310,9 @@
 
 (defco audio-toggle-mute () ()
   (multiple-value-bind (volume muted-p) (audio-toggle-mute*)
-    (if muted-p (message "Muted") (audio-volume-message volume))))
+    (if muted-p
+        (message "Audio ~A" (color-up "muted"))
+        (audio-volume-message volume))))
 
 (define-key *top-map* (kbd "XF86AudioRaiseVolume") "audio-volume-up")
 (define-key *top-map* (kbd "XF86AudioLowerVolume") "audio-volume-down")
@@ -406,7 +420,7 @@ A Bluetooth device is a plist: (:mac MAC :name NAME)."
       (progn
         (sb-ext:process-kill *auto-clicker-process* 15)
         (setf *auto-clicker-process* nil)
-        (message "Auto-clicker OFF"))
+        (message "Auto-clicker ~A" (color-down "OFF")))
       (progn
         (setf *auto-clicker-process*
               (sb-ext:run-program
@@ -414,7 +428,7 @@ A Bluetooth device is a plist: (:mac MAC :name NAME)."
                '("-c" "while :; do xdotool click 1; sleep 0.005; done")
                :search t
                :wait nil))
-        (message "Auto-clicker ON"))))
+        (message "Auto-clicker ~A" (color-up "ON")))))
 
 (define-key *root-map* (kbd "x") "toggle-auto-clicker")
 
