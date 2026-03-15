@@ -1,9 +1,9 @@
-(defpackage #:stumpwm-config
+(defpackage #:net.lecigne.stumpwm
   (:use #:cl #:stumpwm)
-  (:local-nicknames (#:core #:stumpwm-config-core)
-                    (#:bluetooth #:stumpwm-config-bluetooth)))
+  (:local-nicknames (#:core #:net.lecigne.stumpwm.core)
+                    (#:bluetooth #:net.lecigne.stumpwm.bluetooth)))
 
-(in-package #:stumpwm-config)
+(in-package #:net.lecigne.stumpwm)
 
 ;; * Meta
 ;; Lisp stuff that helps playing with StumpWM itself but doesn't change the

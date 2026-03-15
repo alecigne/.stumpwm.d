@@ -1,8 +1,8 @@
-(defpackage #:stumpwm-config-bluetooth
+(defpackage #:net.lecigne.stumpwm.bluetooth
   (:use #:cl)
   (:export #:powered-p))
 
-(in-package #:stumpwm-config-bluetooth)
+(in-package #:net.lecigne.stumpwm.bluetooth)
 
 (defun powered-p ()
   (multiple-value-bind (out err code)
