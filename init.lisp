@@ -337,8 +337,25 @@ stdout; otherwise launch asynchronously."
 
 ;; * Bluetooth
 
-;; TODO Work in progress. This works when Bluetooth is already on; later I'll
-;; ensure it is on.
+(defun bluetooth-powered-p ()
+  (multiple-value-bind (out err code)
+      (uiop:run-program '("bluetoothctl" "show")
+                        :force-shell nil
+                        :output :string
+                        :error-output :string
+                        :ignore-error-status t)
+    (declare (ignore err))
+    (and (zerop code)
+         (not (null (search "Powered: yes" out :test #'char-equal))))))
+
+(defun bluetooth-toggle ()
+  (let ((new-state (if (bluetooth-powered-p) "off" "on")))
+    (uiop:run-program
+     (list "bluetoothctl" "power" new-state)
+     :force-shell nil
+     :ignore-error-status nil
+     :output nil
+     :error-output nil)))
 
 (defun bluetooth-make-device (device-string)
   "Make a Bluetooth device from a DEVICE-STRING.
