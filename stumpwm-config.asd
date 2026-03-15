@@ -13,6 +13,7 @@
   :components ((:module "src"
                 :serial t
                 :components ((:file "core")
+                             (:file "bluetooth")
                              (:file "config")))))
 
 (asdf:defsystem "stumpwm-config/tests"

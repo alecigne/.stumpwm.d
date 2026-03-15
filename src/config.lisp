@@ -1,6 +1,7 @@
 (defpackage #:stumpwm-config
   (:use #:cl #:stumpwm)
-  (:local-nicknames (#:core #:stumpwm-config-core)))
+  (:local-nicknames (#:core #:stumpwm-config-core)
+                    (#:bluetooth #:stumpwm-config-bluetooth)))
 
 (in-package #:stumpwm-config)
 
@@ -327,19 +328,8 @@ stdout; otherwise launch asynchronously."
 
 ;; * Bluetooth
 
-(defun bluetooth-powered-p ()
-  (multiple-value-bind (out err code)
-      (uiop:run-program '("bluetoothctl" "show")
-                        :force-shell nil
-                        :output :string
-                        :error-output :string
-                        :ignore-error-status t)
-    (declare (ignore err))
-    (and (zerop code)
-         (not (null (search "Powered: yes" out :test #'char-equal))))))
-
 (defun bluetooth-toggle ()
-  (let ((new-state (if (bluetooth-powered-p) "off" "on")))
+  (let ((new-state (if (bluetooth:powered-p) "off" "on")))
     (uiop:run-program
      (list "bluetoothctl" "power" new-state)
      :force-shell nil
