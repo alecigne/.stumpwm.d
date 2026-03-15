@@ -1,7 +1,7 @@
 #+TITLE: alecigne's StumpWM config
 #+AUTHOR: Anthony Le Cigne
 
-My [[http://stumpwm.github.io/][StumpWM]] config.
+My [[http://stumpwm.github.io/][StumpWM]] config. It is an [[https://asdf.common-lisp.dev/][ASDF]] system, see [[file:stumpwm-config.asd][stumpwm-config.asd]].
 
 * Other configs
 :PROPERTIES:
@@ -10,4 +10,5 @@ My [[http://stumpwm.github.io/][StumpWM]] config.
 
 - https://codeberg.org/Izder456/StumpWM-Config
 - https://github.com/solbloch/stumpwm-configs
+- https://github.com/alezost/stumpwm-config
 - etc.
