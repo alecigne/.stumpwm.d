@@ -328,53 +328,17 @@ stdout; otherwise launch asynchronously."
 
 ;; * Bluetooth
 
-(defun bluetooth-toggle ()
-  (let ((new-state (if (bluetooth:powered-p) "off" "on")))
-    (uiop:run-program
-     (list "bluetoothctl" "power" new-state)
-     :force-shell nil
-     :ignore-error-status nil
-     :output nil
-     :error-output nil)))
-
-(defun bluetooth-make-device (device-string)
-  "Make a Bluetooth device from a DEVICE-STRING.
-DEVICE-STRINGs look like this: Device 11:22:33:44:55:66 NAME.
-A Bluetooth device is a plist: (:mac MAC :name NAME)."
-  (let ((components (uiop:split-string device-string :separator '(#\Space))))
-    (list :mac  (second components)
-          :name (format nil "~{~A~^ ~}" (cddr components)))))
-
-(defun bluetooth-devices ()
-  "Return a list of Bluetooth devices."
-  (let ((device-strings
-          (uiop:run-program '("bluetoothctl" "devices") :output :lines)))
-    (mapcar #'bluetooth-make-device device-strings)))
-
 (defun bluetooth-select-device ()
   "Return a Bluetooth device chosen from a selection menu."
   (flet ((device->str (d) (format nil "~A (~A)" (getf d :name) (getf d :mac))))
     (select-object-from-menu
-     (current-screen) "Bluetooth devices:" (bluetooth-devices)
+     (current-screen) "Bluetooth devices:" (bluetooth:devices)
      :display-fn #'device->str)))
 
-(defun bluetooth-device-connected-p (device)
-  "Check if DEVICE is connected or not."
-  (let ((info (uiop:run-program
-               (list "bluetoothctl" "info" (getf device :mac))
-               :output :string)))
-    (not (null (search "Connected: yes" info)))))
-
-(defun bluetooth-toggle-device* (device)
-  "Toggle connection of Bluetooth DEVICE."
-  (let ((command (if (bluetooth-device-connected-p device)
-                     "disconnect"
-                     "connect")))
-    (sh "bluetoothctl ~A ~A" command (getf device :mac) :output t)))
-
-(defcommand bluetooth-toggle-device () ()
+(defco bluetooth-toggle-device () ()
+  "Toggle the Bluetooth device selected from a menu."
   (let ((device (bluetooth-select-device)))
-    (when device (bluetooth-toggle-device* device))))
+    (when device (bluetooth:toggle-device device))))
 
 ;; * Experimental
 
