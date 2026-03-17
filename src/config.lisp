@@ -93,10 +93,10 @@ stdout; otherwise launch asynchronously."
       *message-window-y-margin* 12)
 (setf *input-window-gravity* :bottom-right)
 (setf *mode-line-position* :bottom)
-(setf *grab-pointer-foreground* (xlib:make-color :red 1 :green 0 :blue 0))
-(setf *grab-pointer-background* (lookup-color (current-screen) "DeepSkyBlue"))
-(setf *grab-pointer-character* 24)
-(setf *grab-pointer-character-mask* 24)
+(setf stumpwm::*grab-pointer-foreground* (xlib:make-color :red 1 :green 0 :blue 0))
+(setf stumpwm::*grab-pointer-background* (lookup-color (current-screen) "DeepSkyBlue"))
+(setf stumpwm::*grab-pointer-character* 24)
+(setf stumpwm::*grab-pointer-character-mask* 24)
 
 ;; This solves white borders around Emacs. `frame-resize-pixelwise' can also be
 ;; set to T in Emacs to work well with this option.
