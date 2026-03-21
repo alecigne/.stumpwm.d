@@ -1,8 +1,3 @@
-(defpackage #:net.lecigne.stumpwm
-  (:use #:cl #:stumpwm)
-  (:local-nicknames (#:core #:net.lecigne.stumpwm.core)
-                    (#:bluetooth #:net.lecigne.stumpwm.bluetooth)))
-
 (in-package #:net.lecigne.stumpwm)
 
 ;; * Meta

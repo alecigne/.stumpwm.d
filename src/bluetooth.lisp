@@ -1,9 +1,3 @@
-(defpackage #:net.lecigne.stumpwm.bluetooth
-  (:use #:cl)
-  (:export #:toggle
-           #:devices
-           #:toggle-device))
-
 (in-package #:net.lecigne.stumpwm.bluetooth)
 
 (defun powered-p ()
