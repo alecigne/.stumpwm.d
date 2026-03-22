@@ -15,6 +15,7 @@
                 :components ((:file "package")
                              (:file "core")
                              (:file "bluetooth")
+                             (:file "sound")
                              (:file "config")))))
 
 (asdf:defsystem "stumpwm-config/tests"
@@ -28,10 +29,12 @@
                (:module "src"
                 :serial t
                 :components ((:file "package")
-                             (:file "core")))
+                             (:file "core")
+                             (:file "bluetooth")
+                             (:file "sound")))
                (:module "tests"
                 :serial t
                 :components ((:file "package")
-                             (:file "config"))))
+                             (:file "tests"))))
   :perform (test-op (o c)
-             (uiop:symbol-call :stumpwm-config-tests :run-tests)))
+             (uiop:symbol-call :net.lecigne.stumpwm.tests :run-tests)))
