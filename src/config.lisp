@@ -455,7 +455,7 @@ stdout; otherwise launch asynchronously."
   ("e" "emacs")
   ("f" "firefox")
   ("g" "gimp")
-  ("t" "thunar")
+  ("t" "thunar"))
 
 (defkeys *top-map*
   ;; Submaps
