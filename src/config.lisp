@@ -416,4 +416,5 @@ stdout; otherwise launch asynchronously."
 ;;;          '(("(\\(defcommand\\|defco\\)\\s-+\\(\\(?:\\sw\\|\\s_\\)+\\)"
 ;;;             (1 font-lock-keyword-face)
 ;;;             (2 font-lock-function-name-face)))))
+;;; eval: (display-fill-column-indicator-mode)
 ;;; End:
