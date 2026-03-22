@@ -1,7 +1,27 @@
-#+TITLE: alecigne's StumpWM config
-#+AUTHOR: Anthony Le Cigne
+#+title: alecigne's StumpWM config
+#+author: Anthony Le Cigne
 
-My [[http://stumpwm.github.io/][StumpWM]] config. It is an [[https://asdf.common-lisp.dev/][ASDF]] system, see [[file:stumpwm-config.asd][stumpwm-config.asd]].
+My [[http://stumpwm.github.io/][StumpWM]] config.
+
+* Structure
+:PROPERTIES:
+:CREATED:  [2026-03-22 Sun 16:34]
+:END:
+
+The structure is pretty standard I think for a Common Lisp project.
+
+- =init.lisp= is specific to StumpWM, and loads the ASDF system
+  defined in [[file:stumpwm-config.asd][stumpwm-config.asd]].
+
+- The files in =./src= are loaded in an order defined in the ASDF
+  system.
+
+  I'm using modules such as =sound=, =bluetooth=, etc. that don't
+  depend on =stumpwm= for now. Only the main =config= module does,
+  since it wires everything into a StumpWM config per se.
+
+- There are a few tests, because why not? They can be executed using
+  =just test= (see the [[file:Justfile][Justfile]]).
 
 * Other configs
 :PROPERTIES:
