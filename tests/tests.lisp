@@ -37,7 +37,7 @@
 (test parse-volume-state-parses-unmuted-output
   "parse-volume-state returns a numeric volume and NIL for ordinary wpctl output."
       (multiple-value-bind (volume muted-p)
-          (sound:parse-volume-state "Volume: 0.50")
+          (sound::parse-volume-state "Volume: 0.50")
     (is (= 0.5 volume)
         "the numeric volume should be parsed from the wpctl output")
     (is (null muted-p)
@@ -46,17 +46,28 @@
 (test parse-volume-state-parses-muted-output
   "parse-volume-state detects the [MUTED] suffix and returns T for the muted flag."
   (multiple-value-bind (volume muted-p)
-      (sound:parse-volume-state "Volume: 1.00 [MUTED]")
+      (sound::parse-volume-state "Volume: 1.00 [MUTED]")
     (is (= 1.0 volume)
         "the numeric volume should still be parsed when muted")
-    (is-true muted-p
-             "the [MUTED] marker should set the muted flag to T")))
+    (is-true muted-p "the [MUTED] marker should set the muted flag to T")))
 
 (test parse-volume-state-signals-on-invalid-output
   "parse-volume-state fails fast when wpctl output does not match the expected format."
   (signals error
-    (sound:parse-volume-state "not a wpctl volume line")
+    (sound::parse-volume-state "not a wpctl volume line")
     "unexpected wpctl output should signal an error"))
 
 (defun run-tests ()
   (run! 'stumpwm-config-suite))
+
+;; * Notes
+
+;; TODO Avoid using internal symbols, don't test implementation. In this case it
+;; was quite handy and easy, and well, this is just a StumpWM config after all
+;; :)
+
+;; * Emacs config
+
+;;; Local Variables:
+;;; eval: (display-fill-column-indicator-mode)
+;;; End:

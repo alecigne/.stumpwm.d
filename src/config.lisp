@@ -285,33 +285,18 @@ stdout; otherwise launch asynchronously."
 ;; * Sound
 
 (defparameter *volume-step* 0.05)
-(defparameter *volume-max* 1.0)
-
-(defun exec-wpctl-and-get-vol (cmd)
-  (let* ((get-cmd "wpctl get-volume @DEFAULT_SINK@")
-         (final-cmd (concat cmd " && " get-cmd)))
-    (sound:parse-volume-state (sh final-cmd :output t))))
-
-(defun audio-volume (delta)
-  (exec-wpctl-and-get-vol
-   (format nil
-           "wpctl set-volume -l ~,2f @DEFAULT_SINK@ ~D~A"
-           *volume-max* (abs delta) (if (minusp delta) "-" "+"))))
-
-(defun audio-toggle-mute* ()
-  (exec-wpctl-and-get-vol "wpctl set-mute @DEFAULT_SINK@ toggle"))
 
 (defun audio-volume-message (volume)
   (message "Volume is now at ~A" (color-up "~D%" (round (* 100 volume)))))
 
 (defco audio-volume-up () ()
-  (audio-volume-message (audio-volume *volume-step*)))
+  (audio-volume-message (sound:adjust-volume *volume-step*)))
 
 (defco audio-volume-down () ()
-  (audio-volume-message (audio-volume (- *volume-step*))))
+  (audio-volume-message (sound:adjust-volume (- *volume-step*))))
 
 (defco audio-toggle-mute () ()
-  (multiple-value-bind (volume muted-p) (audio-toggle-mute*)
+  (multiple-value-bind (volume muted-p) (sound:toggle-mute)
     (if muted-p
         (message "Audio ~A" (color-up "muted"))
         (audio-volume-message volume))))

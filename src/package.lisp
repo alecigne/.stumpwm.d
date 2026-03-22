@@ -11,7 +11,8 @@
 
 (defpackage #:net.lecigne.stumpwm.sound
   (:use #:cl)
-  (:export #:parse-volume-state))
+  (:export #:adjust-volume
+           #:toggle-mute))
 
 (defpackage #:net.lecigne.stumpwm
   (:use #:cl #:stumpwm)
