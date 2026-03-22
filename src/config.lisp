@@ -346,6 +346,8 @@ stdout; otherwise launch asynchronously."
 
 ;; * Experimental
 
+;; ** Auto-clicker
+
 (defvar *auto-clicker-process* nil)
 
 (defcommand toggle-auto-clicker () ()
@@ -364,6 +366,66 @@ stdout; otherwise launch asynchronously."
         (message "Auto-clicker ~A" (color-up "ON")))))
 
 (define-key *root-map* (kbd "x") "toggle-auto-clicker")
+
+;; ** SomaFM
+;; Quick and dirty wrapper for mpv + SomaFM (Drone Zone, for now).
+;; https://somafm.com/
+
+;; TODO - Move logic to dedicated SomaFM file
+;;      - Create function to get a list of SomaFM channels
+;;      - Use StumpWM menu to choose a channel
+;;      - Use IPC with MPV (to get the currently playing track, for example)
+;;      - Handle multiple players
+;;      - Make it a CL lib later (at least provide a clean API)
+
+(defvar *somafm-drone-zone-url* "https://somafm.com/m3u/dronezone130.m3u")
+(defvar *somafm-player-program* "mpv")
+(defvar *somafm-player-args* '("--no-video" "--force-window=no"))
+(defvar *somafm-process* nil)
+
+(defun somafm-player-command (url)
+  (append (list *somafm-player-program*)
+          *somafm-player-args*
+          (list url)))
+
+(defun somafm-reap-dead-process ()
+  "If we still hold a dead process object, reap it and clear it."
+  (when (and *somafm-process*
+             (not (uiop:process-alive-p *somafm-process*)))
+    (ignore-errors (uiop:wait-process *somafm-process*))
+    (setf *somafm-process* nil)))
+
+(defun somafm-running-p ()
+  "True iff the managed player process is currently alive."
+  (somafm-reap-dead-process)
+  (and *somafm-process* (uiop:process-alive-p *somafm-process*)))
+
+(defun somafm-start (url)
+  "Start playback unless already running. Returns the process object or NIL."
+  (unless (somafm-running-p)
+    (setf *somafm-process*
+          (uiop:launch-program (somafm-player-command url)
+                               :output nil :error-output nil)))
+  *somafm-process*)
+
+(defun somafm-stop ()
+  "Stop playback if running. Returns T if something was stopped."
+  (when (somafm-running-p)
+    (uiop:terminate-process *somafm-process*)
+    (ignore-errors (uiop:wait-process *somafm-process*))
+    (setf *somafm-process* nil)
+    t))
+
+(defun somafm-toggle (url)
+  "Toggle playback for the managed SomaFM player."
+  (if (somafm-running-p)
+      (progn (somafm-stop) :stopped)
+      (progn (somafm-start url) :started)))
+
+(defcommand somafm-toggle-drone-zone () ()
+  (case (somafm-toggle *somafm-drone-zone-url*)
+    (:started (message "Starting SomaFM Drone Zone"))
+    (:stopped (message "Stopped SomaFM"))))
 
 ;; * Keyboard
 ;; Low-level customization of the keyboard, and keybindings for applications.
