@@ -27,11 +27,17 @@ stdout; otherwise launch asynchronously."
   `(let ((it ,test))
      (if it ,then ,else)))
 
+;; TODO Use a function, a macro doesn't bring much.
 (defmacro defkeys (map &body bindings)
   (alexandria:with-gensyms (m)
     `(let ((,m ,map))
        ,@(loop for (key command) in bindings
                collect `(define-key ,m (kbd ,key) ,command)))))
+
+;; (defun defkeys (map bindings)
+;;   (dolist (binding bindings)
+;;     (destructuring-bind (key command) binding
+;;       (define-key map (kbd key) command))))
 
 (defmacro defco (&rest args) `(defcommand ,@args))
 
