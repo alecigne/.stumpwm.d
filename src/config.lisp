@@ -167,14 +167,17 @@ stdout; otherwise launch asynchronously."
 
 ;; ** Usual suspects
 
+(defco alacritty () () (sh "alacritty"))
+
 (defco firefox () ()
   (run-or-raise "firefox-esr" '(:class "firefox-esr")))
 
 (defco rofi () () (sh "rofi -show combi"))
-(defco alacritty () () (sh "alacritty"))
 
 (defco rofi-greenclip () ()
   (sh "rofi -modi \"clipboard:greenclip print\" -show clipboard"))
+
+(defco thunar () () (sh "thunar"))
 
 ;; ** xsecurelock
 
