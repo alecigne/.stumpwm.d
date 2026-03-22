@@ -167,6 +167,9 @@ stdout; otherwise launch asynchronously."
 (defco rofi () () (sh "rofi -show combi"))
 (defco alacritty () () (sh "alacritty"))
 
+(defco rofi-greenclip () ()
+  (sh "rofi -modi \"clipboard:greenclip print\" -show clipboard"))
+
 ;; ** xsecurelock
 
 (defco lock-screen () ()
@@ -378,12 +381,24 @@ stdout; otherwise launch asynchronously."
 
 (set-prefix-key (kbd "s-c"))
 
+(defvar *app-map* (make-sparse-keymap))
+
+(defkeys *app-map*
+  ("e" "emacs")
+  ("f" "firefox")
+  ("g" "gimp")
+  ("t" "thunar")
+
 (defkeys *top-map*
-  ;; s-x resembles M-x in Emacs
-  ("s-x" "colon")
+  ;; Submaps
+  ("s-a" '*app-map*)
+
+  ;; Direct keybindings
+  ("s-x" "colon") ; s-x resembles M-x in Emacs
   ("s-j" "next")
   ("s-k" "prev")
   ("s-RET" "rofi")
+  ("s-S-RET" "rofi-greenclip")
   ("s-SPC" "alacritty")
   ("s-TAB" "pull-hidden-other")
   ("Print" "screenshot")
