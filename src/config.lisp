@@ -105,6 +105,15 @@ stdout; otherwise launch asynchronously."
 
 (sh "xsetroot -cursor_name left_ptr")
 
+;; ** Logging
+
+(stumpwm:redirect-all-output
+ (merge-pathnames "stumpwm.log" stumpwm:*data-dir*))
+
+;; I log with only one level, 0. That's enough for now.
+(defun stump-debug (fmt &rest args)
+  (apply #'stumpwm:dformat 0 (concatenate 'string fmt "~%") args))
+
 ;; ** Modeline
 
 (load-module "battery-portable")
