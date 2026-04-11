@@ -155,6 +155,13 @@ stdout; otherwise launch asynchronously."
 
 ;; * Windows and groups
 
+;; `alttab' - The task switcher for minimalistic window managers.
+;; https://github.com/sagb/alttab
+(when *initializing*
+  (if (member "alttab" (stumpwm:programs-in-path) :test #'string=)
+      (run-shell-command "alttab &")
+      (stump-debug "alttab not found in PATH")))
+
 (defun move-window (delta)
   (let* ((win (current-window))
          (n (window-number win))
