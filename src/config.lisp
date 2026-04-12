@@ -135,11 +135,17 @@ stdout; otherwise launch asynchronously."
 (setf *mode-line-timeout* 60)
 
 (setf *screen-mode-line-format*
-      '("[^B%n^b] %W^> "
+      '("[^B%g^b] %W^> "
         " | "
         "bat: %B"
         " | "
         (:eval (modeline-time))))
+
+(setf *group-format* "%n")
+
+(when (and *initializing*
+           (= (length (screen-groups (current-screen))) 1))
+  (run-commands "gnewbg 2" "gnewbg 3" "gnewbg 4"))
 
 (mode-line)
 
