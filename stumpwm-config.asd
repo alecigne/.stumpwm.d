@@ -15,6 +15,7 @@
                 :components ((:file "package")
                              (:file "core")
                              (:file "bluetooth")
+                             (:file "display")
                              (:file "sound")
                              (:file "config")))))
 
@@ -22,7 +23,8 @@
   :description "Tests for alecigne's StumpWM configuration"
   :author "Anthony Le Cigne"
   :license "MIT"
-  :depends-on (:stumpwm
+  :depends-on (:alexandria
+               :stumpwm
                :fiveam)
   :serial t
   :components (;; This avoid loading "config", as it needs a StumpWM session.
@@ -31,6 +33,7 @@
                 :components ((:file "package")
                              (:file "core")
                              (:file "bluetooth")
+                             (:file "display")
                              (:file "sound")))
                (:module "tests"
                 :serial t
