@@ -206,50 +206,53 @@ stdout; otherwise launch asynchronously."
 (defco lock-screen () ()
   (sh "XSECURELOCK_PASSWORD_PROMPT=asterisks xsecurelock"))
 
-;; ** Redshift
+;; ** Display
 
-(defparameter *redshift-min* 4500)
-(defparameter *redshift-max* 6500)
-(defparameter *redshift-step* 500)
-(defvar *redshift-current* nil)
+(defparameter *color-temperature-step* 500)
 
-(defun redshift-message (kelvin)
-  (message "Color temperature is now ~A" (color-up "~DK" kelvin)))
+(defco color-temperature-status () ()
+  (let ((kelvin (display:color-temperature-current)))
+    (if kelvin
+        (message "Color temperature is now ~A" (color-up "~DK" kelvin))
+        (message "Color temperature is ~A" (color-warn "unknown")))
+    kelvin))
 
-(defco redshift-set (kelvin) ((:number "Kelvin: "))
-  (let ((k (alexandria:clamp (round kelvin) *redshift-min* *redshift-max*)))
-    (setf *redshift-current* k)
-    (sh "redshift -PO ~D" k)
-    (redshift-message k)
-    k))
+(defco color-temperature-set (kelvin) ((:number "Kelvin: "))
+  (display:color-temperature-set kelvin)
+  (color-temperature-status))
 
-(defun redshift-shift (delta)
-  (redshift-set (+ (or *redshift-current* *redshift-max*) delta)))
+(defun color-temperature-shift (delta)
+  (display:color-temperature-shift delta)
+  (color-temperature-status))
 
-(defco redshift-reset () ()
-  (redshift-set *redshift-max*))
+(defco color-temperature-reset () ()
+  (display:color-temperature-reset)
+  (color-temperature-status))
 
-(defco redshift-warmer (&optional (step *redshift-step*)) ()
-  (redshift-shift (- step)))
+(defco color-temperature-warmer (&optional (step *color-temperature-step*)) ()
+  (color-temperature-shift (- step)))
 
-(defco redshift-cooler (&optional (step *redshift-step*)) ()
-  (redshift-shift step))
+(defco color-temperature-cooler (&optional (step *color-temperature-step*)) ()
+  (color-temperature-shift step))
 
-;; ** brightnessctl
-
-(defvar *brightness-current* nil)
+(defco brightness-status () ()
+  (let ((brightness (display:brightness-current)))
+    (if brightness
+        (message "Brightness is now ~A" (color-up "~D%" brightness))
+        (message "Brightness is ~A" (color-warn "unknown")))
+    brightness))
 
 (defco brightness-set (value) ((:number "Value: "))
-  (let ((v (alexandria:clamp (round value) 0 100)))
-    (setf *brightness-current* v)
-    (sh "brightnessctl set ~D%" v)
-    (message "Brightness is now ~A" (color-up "~D%" v))
-    v))
+  (display:brightness-set value)
+  (brightness-status))
 
 (defun brightness-shift (delta)
-  (brightness-set (+ (or *brightness-current* 100) delta)))
+  (display:brightness-shift delta)
+  (brightness-status))
 
-(defco brightness-reset () () (brightness-set 100))
+(defco brightness-reset () ()
+  (display:brightness-reset)
+  (brightness-status))
 
 (defco brightness-decrease (&optional (step 5)) ()
   (brightness-shift (- step)))
@@ -261,24 +264,17 @@ stdout; otherwise launch asynchronously."
   ("XF86MonBrightnessDown" "brightness-decrease")
   ("XF86MonBrightnessUp"   "brightness-increase"))
 
-(defvar *night-mode-p* nil)
+(defco night-mode-status () ()
+  (let ((enabled-p (display:night-mode-p)))
+    (message "Night mode ~A"
+             (if enabled-p
+                 (color-up "enabled")
+                 (color-down "disabled")))
+    enabled-p))
 
-(defun night-mode-disable ()
-  (redshift-reset)
-  (brightness-reset)
-  (setf *night-mode-p* nil)
-  (message "Night mode ~A" (color-down "disabled")))
-
-(defun night-mode-enable ()
-  (redshift-set *redshift-min*)
-  (brightness-set 90)
-  (setf *night-mode-p* t)
-  (message "Night mode ~A" (color-up "enabled")))
-
-(defco night-mode-toggle () ()
-  (if *night-mode-p*
-      (night-mode-disable)
-      (night-mode-enable)))
+(defco night-mode () ()
+  (display:night-mode)
+  (night-mode-status))
 
 ;; ** NordVPN
 
