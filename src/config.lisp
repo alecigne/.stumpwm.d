@@ -192,7 +192,9 @@ stdout; otherwise launch asynchronously."
 (defco alacritty () () (sh "alacritty"))
 
 (defco firefox () ()
-  (run-or-raise "firefox-esr" '(:class "firefox-esr")))
+  "Run or raise Firefox with a custom X11 window class. See [1].
+[1] https://bugzilla.mozilla.org/show_bug.cgi?id=1747722"
+  (run-or-raise "firefox-esr --class Firefox" '(:class "Firefox")))
 
 (defco rofi () () (sh "rofi -show combi"))
 
