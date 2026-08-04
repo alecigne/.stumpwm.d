@@ -1,7 +1,7 @@
 test:
-    sbcl --non-interactive \
-      --eval '(require :asdf)' \
-      --eval '(asdf:test-system "stumpwm-config/tests")'
+    ros -e '(require :asdf)' \
+      -e '(asdf:test-system "stumpwm-config/tests")' \
+      -q
 
 serve:
     silverbullet ./wiki

@@ -11,6 +11,7 @@ src/core.lisp          general utilities
 src/bluetooth.lisp     Bluetooth operations
 src/display.lisp       brightness, temperature, and night mode
 src/sound.lisp         volume and mute operations
+src/vpn.lisp           cached NordVPN and WireGuard status detection
 src/config.lisp        live StumpWM configuration and commands
 tests/                 FiveAM unit tests
 wiki/                  this SilverBullet space
@@ -21,7 +22,7 @@ Justfile               common development recipes
 
 The application system requires:
 
-- A Common Lisp implementation (the recipes use SBCL);
+- Roswell with a configured Common Lisp implementation;
 - ASDF/UIOP;
 - Alexandria;
 - CL-PPCRE;
@@ -47,6 +48,7 @@ Features invoke these external programs when used:
 | `xsecurelock` | Screen locking |
 | `screenshot` | Full and selected-area screenshots |
 | `nordvpn` | VPN commands |
+| `ip` | Active WireGuard interface detection |
 | `alttab` | Startup task switcher, when found in `PATH` |
 | `xdotool` | Experimental auto-clicker |
 | `mpv` | SomaFM playback |
@@ -64,7 +66,7 @@ Run:
 just test
 ```
 
-This executes `asdf:test-system` in a non-interactive SBCL. The FiveAM tests cover string sanitizing, Bluetooth device parsing, display normalization and caches, night-mode transitions, and `wpctl` output parsing.
+This executes `asdf:test-system` through Roswell. The FiveAM tests cover string sanitizing, Bluetooth device parsing, display normalization and caches, night-mode transitions, VPN detection and caching, and `wpctl` output parsing.
 
 External effects are replaced with dynamically bound function-valued special variables, so unit tests do not alter the real display. See [[notes|Common Lisp notes]] for the rationale. The suite does not verify that external programs are installed or work with the current machine; those are integration concerns.
 

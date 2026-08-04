@@ -195,6 +195,112 @@
     (is (null (display:night-mode)))
     (is (null (display:night-mode-p)))))
 
+(test vpn-parse-nordvpn-status
+  "NordVPN status parsing recognizes explicit connected and disconnected states."
+  (is (eq :connected
+          (vpn::parse-nordvpn-status "Status: Connected\nCountry: France\n")))
+  (is (eq :disconnected
+          (vpn::parse-nordvpn-status "Status: Disconnected\n")))
+  (is (eq :connected
+          (vpn::parse-nordvpn-status "status: connected\n")))
+  (is (eq :unknown
+          (vpn::parse-nordvpn-status "Status: Connecting\n"))))
+
+(test vpn-parse-wireguard-interfaces
+  "WireGuard parsing extracts interface names from ip's brief output."
+  (is (equal '("wg0" "work-vpn")
+             (vpn::parse-wireguard-interfaces
+              (format nil "wg0~CUNKNOWN~C<POINTOPOINT,UP>~%work-vpn~CUP~C<UP>~%"
+                      #\Tab #\Tab #\Tab #\Tab))))
+  (is (null (vpn::parse-wireguard-interfaces ""))))
+
+(test vpn-status-prefers-nordvpn
+  "A connected NordVPN session takes precedence without probing WireGuard."
+  (let* ((wireguard-called-p nil)
+         (vpn::*nordvpn-detector* (lambda () :connected))
+         (vpn::*wireguard-detector*
+           (lambda ()
+             (setf wireguard-called-p t)
+             (values '("nordlynx") :available))))
+    (let ((status (vpn:refresh-status)))
+      (is (eq :active (vpn:vpn-status-state status)))
+      (is (eq :nordvpn (vpn:vpn-status-backend status)))
+      (is (null (vpn:vpn-status-interfaces status)))
+      (is (null wireguard-called-p)))))
+
+(test vpn-status-falls-back-to-wireguard
+  "An active WireGuard interface is reported when NordVPN is not connected."
+  (let ((vpn::*nordvpn-detector* (lambda () :disconnected))
+        (vpn::*wireguard-detector*
+          (lambda () (values '("wg0" "work-vpn") :available))))
+    (let ((status (vpn:refresh-status)))
+      (is (eq :active (vpn:vpn-status-state status)))
+      (is (eq :wireguard (vpn:vpn-status-backend status)))
+      (is (equal '("wg0" "work-vpn")
+                 (vpn:vpn-status-interfaces status)))))
+  (let ((vpn::*nordvpn-detector* (lambda () :unknown))
+        (vpn::*wireguard-detector*
+          (lambda () (values '("wg0") :available))))
+    (let ((status (vpn:refresh-status)))
+      (is (eq :active (vpn:vpn-status-state status)))
+      (is (eq :wireguard (vpn:vpn-status-backend status))))))
+
+(test vpn-status-reports-inactive-and-unknown
+  "Successful empty probes mean inactive; unresolved probe failures mean unknown."
+  (let ((vpn::*nordvpn-detector* (lambda () :unavailable))
+        (vpn::*wireguard-detector* (lambda () (values nil :available))))
+    (is (eq :inactive
+            (vpn:vpn-status-state (vpn:refresh-status)))))
+  (let ((vpn::*nordvpn-detector* (lambda () :unknown))
+        (vpn::*wireguard-detector* (lambda () (values nil :available))))
+    (is (eq :unknown
+            (vpn:vpn-status-state (vpn:refresh-status)))))
+  (let ((vpn::*nordvpn-detector* (lambda () :disconnected))
+        (vpn::*wireguard-detector* (lambda () (values nil :unknown))))
+    (is (eq :unknown
+            (vpn:vpn-status-state (vpn:refresh-status))))))
+
+(test vpn-status-cache-expires-after-sixty-seconds
+  "Repeated reads use the cache until its configured TTL has elapsed."
+  (let* ((now 100)
+         (detections 0)
+         (vpn::*cached-status* nil)
+         (vpn::*cached-at* nil)
+         (vpn:*status-cache-ttl* 60)
+         (vpn::*clock* (lambda () now))
+         (vpn::*nordvpn-detector*
+           (lambda ()
+             (incf detections)
+             :connected))
+         (vpn::*wireguard-detector*
+           (lambda () (values nil :available))))
+    (let ((first (vpn:current-status)))
+      (setf now 159)
+      (is (eq first (vpn:current-status)))
+      (is (= 1 detections))
+      (setf now 160)
+      (is (not (eq first (vpn:current-status))))
+      (is (= 2 detections)))))
+
+(test vpn-status-refresh-and-invalidation-bypass-cache
+  "Forced refresh and invalidation both cause the next state detection to run."
+  (let* ((detections 0)
+         (vpn::*cached-status* nil)
+         (vpn::*cached-at* nil)
+         (vpn::*clock* (lambda () 100))
+         (vpn::*nordvpn-detector*
+           (lambda ()
+             (incf detections)
+             :connected))
+         (vpn::*wireguard-detector*
+           (lambda () (values nil :available))))
+    (vpn:current-status)
+    (vpn:refresh-status)
+    (is (= 2 detections))
+    (vpn:invalidate-status-cache)
+    (vpn:current-status)
+    (is (= 3 detections))))
+
 (test parse-volume-state-parses-unmuted-output
   "parse-volume-state returns a numeric volume and NIL for ordinary wpctl output."
       (multiple-value-bind (volume muted-p)

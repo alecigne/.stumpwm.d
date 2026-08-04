@@ -17,7 +17,8 @@ ASDF finds `stumpwm-config.asd` in the config directory and loads its serial com
 3. `src/bluetooth.lisp`
 4. `src/display.lisp`
 5. `src/sound.lisp`
-6. `src/config.lisp`
+6. `src/vpn.lisp`
+7. `src/config.lisp`
 
 The order matters: packages exist before their implementations, and the StumpWM-facing config is loaded only after all supporting modules.
 
@@ -29,6 +30,7 @@ The order matters: packages exist before their implementations, and the StumpWM-
 | `net.lecigne.stumpwm.bluetooth` | `bluetooth` | `bluetoothctl` state, device discovery, and connection toggling |
 | `net.lecigne.stumpwm.display` | `display` | Brightness, color-temperature caches and writers, and night mode |
 | `net.lecigne.stumpwm.sound` | `sound` | PipeWire volume and mute operations through `wpctl` |
+| `net.lecigne.stumpwm.vpn` | `vpn` | Cached NordVPN and WireGuard status detection |
 | `net.lecigne.stumpwm` | — | StumpWM commands, UI messages, hooks, modules, applications, and bindings |
 
 Only `src/config.lisp` needs a live StumpWM session. The supporting modules use Common Lisp and external commands, which lets the test system load them without loading session-dependent configuration.
@@ -69,5 +71,7 @@ This distinction is intentional in the display module:
 
 - Brightness, color temperature, and night-mode state use `defvar`, so cached state survives an ordinary reload;
 - Writer functions use `defparameter`, so reloading restores the production external-command implementation after a test or REPL experiment.
+
+The VPN module similarly retains its last detected status across reloads. Its detector functions and monotonic clock use `defparameter`, so reloading restores the production implementations, while the cached status and timestamp use `defvar`. `current-status` refreshes entries after 60 seconds; callers can also force a refresh or invalidate the cache after an operation that may change connectivity.
 
 Color temperature starts at 6500 K in a fresh Lisp process without invoking `redshift`. Brightness starts unknown and uses 100% as the baseline for its first relative adjustment. These values are config-owned caches, not readings queried from the hardware.

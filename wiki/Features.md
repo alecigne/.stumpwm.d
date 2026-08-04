@@ -25,7 +25,7 @@ The `Super-a` application submap contains `e` for Emacs, `f` for Firefox, `g` fo
 ## Application commands
 
 - `alacritty`, `rofi`, `rofi-greenclip`, and `thunar` launch their respective applications.
-- `firefox` runs or raises `firefox-esr` by window class.
+- `firefox` runs or raises `firefox-esr`, launching it with the X11 class `Firefox` so its class-based StumpWM name is also `Firefox`.
 - `lock-screen` starts XSecureLock with an asterisk password prompt.
 - `screenshot` and `screenshot-area` write through the external `screenshot` helper into `~/tmp/screenshots/`.
 
@@ -51,11 +51,11 @@ The Bluetooth package wraps `bluetoothctl` to inspect adapter power, list known 
 
 ## Networking
 
-`nord-connect` connects NordVPN to a prompted target, defaulting to France; `nord-disconnect` disconnects it. `nord-status` is a Lisp helper rather than a StumpWM command.
+`nord-connect` connects NordVPN to a prompted target, defaulting to France; `nord-disconnect` disconnects it, with `nordvpn-disconnect` available as an explicit alias. The independent VPN module checks NordVPN first, then administratively active WireGuard interfaces, and normalizes the result as active, inactive, or unknown. Results are cached for 60 seconds, while explicit NordVPN connection changes invalidate the cache. Detection failures remain distinct from an inactive VPN.
 
 ## Window groups and mode line
 
-On initial startup the config creates background groups 2, 3, and 4 when only the default group exists. The mode line sits at the bottom and shows the group, windows, portable battery status, ISO date/week/day, and time; it refreshes once per minute.
+On initial startup the config creates background groups 2, 3, and 4 when only the default group exists. The mode line sits at the bottom and shows the group, windows, VPN status, portable battery status, ISO date/week/day, and time; it refreshes once per minute. VPN status is rendered as `vpn: nord`, a WireGuard interface such as `vpn: wg0`, `vpn: off`, or `vpn: ?` when detection fails.
 
 `move-window-left` and `move-window-right` renumber the current window when a valid adjacent position exists.
 

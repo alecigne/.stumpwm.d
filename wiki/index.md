@@ -7,7 +7,7 @@ This is Anthony Le Cigne's personal StumpWM configuration. It is organized as a 
 
 - [[Architecture]] — how StumpWM loads the config, ASDF component order, packages, initialization, and reload behavior
 
-- [[Features]] — commands, key bindings, display/audio/Bluetooth controls, and experimental tools
+- [[Features]] — commands, key bindings, display/audio/Bluetooth/VPN controls, and experimental tools
 
 - [[Development]] — dependencies, tests, logs, the REPL, and serving this wiki
 
@@ -22,7 +22,7 @@ just test
 just serve
 ```
 
-`just test` runs the FiveAM unit tests through ASDF. `just serve` starts SilverBullet with `wiki/` as its space; the default local URL is <http://localhost:3000>.
+`just test` runs the FiveAM unit tests through Roswell and ASDF. `just serve` starts SilverBullet with `wiki/` as its space; the default local URL is <http://localhost:3000>.
 
 The source of truth remains the Lisp code. This wiki explains its structure and operating assumptions, but should be updated when commands, bindings, or dependencies change.
 

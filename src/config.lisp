@@ -132,10 +132,24 @@ stdout; otherwise launch asynchronously."
              nil now
              :format '((:hour 2) #\: (:min 2))))))
 
+(defun modeline-vpn ()
+  (let ((status (vpn:current-status)))
+    (case (vpn:vpn-status-state status)
+      (:active
+       (case (vpn:vpn-status-backend status)
+         (:nordvpn "vpn: nord")
+         (:wireguard
+          (format nil "vpn: ~{~A~^,~}"
+                  (vpn:vpn-status-interfaces status)))
+         (otherwise "vpn: ?")))
+      (:inactive "vpn: off")
+      (otherwise "vpn: ?"))))
+
 (setf *mode-line-timeout* 60)
 
 (setf *screen-mode-line-format*
       '("[^B%g^b] %W^> "
+        (:eval (modeline-vpn))
         " | "
         "bat: %B"
         " | "
@@ -280,14 +294,15 @@ stdout; otherwise launch asynchronously."
 
 ;; ** NordVPN
 
-(defun nord-status ()
-  (sh "nordvpn status" :output t))
+(defco nord-connect (&optional target) ((:string))
+  (unwind-protect
+       (sh "nordvpn connect ~A" (aif target it "france") :output t)
+    (vpn:invalidate-status-cache)))
 
-(defco nord-connect (&optional target) ((:string "Target: "))
-  (sh "nordvpn connect ~A" (aif target it "france") :output t))
-
-(defun nord-disconnect ()
-  (sh "nordvpn disconnect" :output t))
+(defco nord-disconnect () ()
+  (unwind-protect
+       (sh "nordvpn disconnect" :output t)
+    (vpn:invalidate-status-cache)))
 
 ;; ** screenshot
 

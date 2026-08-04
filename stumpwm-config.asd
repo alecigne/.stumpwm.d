@@ -17,6 +17,7 @@
                              (:file "bluetooth")
                              (:file "display")
                              (:file "sound")
+                             (:file "vpn")
                              (:file "config")))))
 
 (asdf:defsystem "stumpwm-config/tests"
@@ -34,7 +35,8 @@
                              (:file "core")
                              (:file "bluetooth")
                              (:file "display")
-                             (:file "sound")))
+                             (:file "sound")
+                             (:file "vpn")))
                (:module "tests"
                 :serial t
                 :components ((:file "package")
