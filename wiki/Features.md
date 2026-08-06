@@ -15,7 +15,7 @@ The StumpWM prefix is `Super-c`. The tables below use `s-` for Super and upperca
 | `s-SPC` | Start Alacritty |
 | `s-TAB` | Pull the next hidden window |
 | `Print` / `Sys_Req` | Take a full / area screenshot |
-| `s-1` … `s-0` | Pull windows 1 … 0 (French-layout key names in source) |
+| `s-1` … `s-0` | Pull that window, or return to the previous hidden window when it is current (French-layout key names in source) |
 | `XF86MonBrightnessDown/Up` | Change brightness by 5 percentage points |
 | `XF86AudioRaiseVolume/LowerVolume` | Change volume by 5 percentage points |
 | `XF86AudioMute` | Toggle mute |

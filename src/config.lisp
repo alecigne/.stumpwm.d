@@ -199,6 +199,13 @@ stdout; otherwise launch asynchronously."
 (defco move-window-left () () (move-window -1))
 (defco move-window-right () () (move-window 1))
 
+(defco pull-or-previous (number) ((:number "Window number: "))
+  "Pull window NUMBER, or pull the previous hidden window when it is current."
+  (let ((window (current-window)))
+    (if (and window (= number (window-number window)))
+        (pull-hidden-other)
+        (pull-window-by-number number))))
+
 ;; * Applications
 
 ;; ** Usual suspects
@@ -483,16 +490,16 @@ stdout; otherwise launch asynchronously."
   ("Sys_Req" "screenshot-area")
   ("s-J" "move-window-right")
   ("s-K" "move-window-left")
-  ("s-ampersand" "pull 1")
-  ("s-eacute" "pull 2")
-  ("s-quotedbl" "pull 3")
-  ("s-apostrophe" "pull 4")
-  ("s-parenleft" "pull 5")
-  ("s-minus" "pull 6")
-  ("s-egrave" "pull 7")
-  ("s-underscore" "pull 8")
-  ("s-ccedilla" "pull 9")
-  ("s-agrave" "pull 0"))
+  ("s-ampersand" "pull-or-previous 1")
+  ("s-eacute" "pull-or-previous 2")
+  ("s-quotedbl" "pull-or-previous 3")
+  ("s-apostrophe" "pull-or-previous 4")
+  ("s-parenleft" "pull-or-previous 5")
+  ("s-minus" "pull-or-previous 6")
+  ("s-egrave" "pull-or-previous 7")
+  ("s-underscore" "pull-or-previous 8")
+  ("s-ccedilla" "pull-or-previous 9")
+  ("s-agrave" "pull-or-previous 0"))
 
 (defkeys *root-map*
   ("l" "lock-screen")
